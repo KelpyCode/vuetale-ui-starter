@@ -1,11 +1,8 @@
 <script setup lang="ts">
 import { Common } from 'vt:@core/components/Common';
+import { Core } from 'vt:@core/components/core';
+import { useData } from 'vt:@core/composables/useData';
 import { ref } from 'vue';
-interface Props {
-    test: string
-}
-
-const props = defineProps<Props>()
 
 console.log("WORKS!")
 
@@ -14,18 +11,27 @@ function clickTest() {
     someState.value = !someState.value
 }
 
+const textFieldInput = ref("Hello!")
 
 const someState = ref(false)
 const text = ref("nothing yet")
 
+const test = useData<string>("test", "default value")
+
 </script>
 <template>
-    <Group class="z-30 wrap-normal" :anchor="{ Full: 1, Left: 0, Right: 0 }">
-        <Label>Test {{ props.test }}</Label>
-        <Common.BackButton :anchor="{ Top: 1 }"></Common.BackButton>
-        <CheckBox :anchor="{}"></CheckBox>
-    </Group>
+    <Common.DecoratedContainer :anchor="{ Width: 500, Height: 300 }">
+        <template #title>
+            <Common.Title text="Vuetale Starter!"></Common.Title>
+        </template>
+        <template #content>
+            <Group layout-mode="TopScrolling" :anchor="{ Full: 1 }">
+                <Label>Custom! {{ text }} | {{ test }}</Label>
+                <Label>{{ textFieldInput }}</Label>
+                <Common.TextButton @activating="clickTest" text="CLICK ME"></Common.TextButton>
+                <Core.TextField v-if="someState" v-model="textFieldInput"></Core.TextField>
+            </Group>
+        </template>
+
+    </Common.DecoratedContainer>
 </template>
-<style>
-.test {}
-</style>
