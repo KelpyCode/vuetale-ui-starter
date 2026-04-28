@@ -68,6 +68,19 @@ function getPageEntries() {
     }, {} as Record<string, string>)
 }
 
+function getHudEntries() {
+  const hudsDir = resolve(__dirname, 'lib/huds')
+
+  if (!existsSync(hudsDir)) return {}
+  return readdirSync(hudsDir)
+    .filter(file => file.endsWith('.vue'))
+    .reduce((entries, file) => {
+      const name = file.replace('.vue', '')
+      entries[name] = resolve(hudsDir, file)
+      return entries
+    }, {} as Record<string, string>)
+}
+
 function getComposableEntries() {
   const composablesDir = resolve(__dirname, 'lib/composables')
 
@@ -99,11 +112,8 @@ export default defineConfig(({ mode }): UserConfig => ({
     dts.vite({ tsconfigPath: './tsconfig.app.json', processor: 'vue' }),
 
     vueDevTools(),
-    // @ts-expect-error - vite version may mismatch slightly
     VuetalePlugin(),
-    // @ts-expect-error - vite version may mismatch slightly
     CssBuildPlugin(),
-    // @ts-expect-error - vite version may mismatch slightly
     HmrIdsPlugin(),
   ],
   resolve: {
@@ -120,6 +130,7 @@ export default defineConfig(({ mode }): UserConfig => ({
         // you can still have a main barrel if you want
         // index: resolve(__dirname, 'src/index.ts'),
         ...getPageEntries(),   // Button, Card, Modal, ...
+        ...getHudEntries(),
         ...getComponentEntries(),
         ...getScriptEntries(mode),
         ...getComposableEntries()
