@@ -8,11 +8,10 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 import { resolve } from 'node:path'
 import { readdirSync } from 'node:fs'
 import { existsSync, readFileSync } from 'node:fs'
-import { CssBuildPlugin, HmrIdsPlugin, VuetalePlugin } from 'vuetale/vite'
+import { AssetSyncPlugin, CssBuildPlugin, HmrIdsPlugin, VuetalePlugin } from 'vuetale/vite'
 import { NATIVE_UI_TAGS } from 'vuetale'
 import vuetaleConfig from './.vuetale/config.json' with { type: 'json' }
 import vuetalePlugin from './lib/vuetale-plugin.json' with { type: 'json' }
-import dts from 'unplugin-dts'
 
 function loadVuetaleAliases(): Record<string, string> {
   const aliasesFile = resolve(__dirname, '.vuetale/aliases.json')
@@ -109,12 +108,12 @@ export default defineConfig(({ mode }): UserConfig => ({
       },
     }),
     vueJsx(),
-    dts.vite({ tsconfigPath: './tsconfig.app.json', processor: 'vue' }),
 
     vueDevTools(),
     VuetalePlugin(),
     CssBuildPlugin(),
     HmrIdsPlugin(),
+    AssetSyncPlugin(__dirname, vuetaleConfig.resourcesLocation, vuetalePlugin.name),
   ],
   resolve: {
     alias: {
@@ -125,6 +124,12 @@ export default defineConfig(({ mode }): UserConfig => ({
   build: {
     cssCodeSplit: true,
     sourcemap: 'inline',
+    watch: mode === 'development'
+      ? {
+        include: ['lib/**'],
+        exclude: ['**/assets.ts'],
+      }
+      : null,
     lib: {
       entry: {
         // you can still have a main barrel if you want
